@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /checkout.html
+Disallow: /login.html
+Disallow: /lupaPassword.html
+Disallow: /lupaPasswordCustomer.html
+Disallow: /maintainChat.html
+
+Sitemap: https://adasemua.github.io/semuaada/sitemap.xml
