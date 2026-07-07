@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Chat Pelanggan — MahaMeru</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{--h:#1565c0;--ht:#0d47a1;--hm:#e3f2fd;--or:#e65100;--g:#16a34a;--r:#dc2626;--bg:#f0f4ff;--putih:#fff;--abu:#6b7280;--abu2:#374151;--shad:0 2px 12px rgba(21,101,192,.09);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:linear-gradient(135deg,var(--ht),#1565c0 60%,var(--or));padding:11px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 14px rgba(0,0,0,.18);}
+.btn-back{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:9px;padding:7px 11px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.topbar-title{color:#fff;font-size:14px;font-weight:800;flex:1;}
+.topbar-sub{color:rgba(255,255,255,.8);font-size:10.5px;margin-top:1px;}
+
+.inbox-wrap{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+.inbox-card{background:var(--putih);border-radius:14px;padding:12px 13px;box-shadow:var(--shad);display:flex;align-items:center;gap:12px;cursor:pointer;}
+.inbox-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--ht),var(--h));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;flex-shrink:0;}
+.inbox-info{min-width:0;flex:1;}
+.inbox-nama{font-size:13px;font-weight:800;color:var(--abu2);}
+.inbox-preview{font-size:11.5px;color:var(--abu);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inbox-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.btn-del-inbox{background:#fef2f2;color:var(--r);border:none;border-radius:8px;width:26px;height:26px;font-size:12px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.btn-del-thread{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:9px;padding:7px 10px;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-del-thread.show{display:flex;}
+.btn-del-permanen{background:rgba(220,38,38,.35);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:9px;padding:7px 10px;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-del-permanen.show{display:flex;}
+.inbox-time{font-size:10px;color:var(--abu);}
+.inbox-unread{background:var(--r);color:#fff;font-size:9.5px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;}
+.empty{padding:60px 20px;text-align:center;color:var(--abu);}
+.skel-card{background:var(--putih);border-radius:14px;padding:13px;box-shadow:var(--shad);}
+.skel{background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;}
+
+.chat-thread{flex:1;overflow-y:auto;padding:14px;display:none;flex-direction:column;gap:8px;}
+.chat-msg{max-width:78%;padding:9px 12px;border-radius:14px;font-size:12.5px;line-height:1.45;word-wrap:break-word;}
+.chat-msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--ht),var(--h));color:#fff;border-bottom-right-radius:4px;}
+.chat-msg.them{align-self:flex-start;background:var(--putih);color:var(--abu2);border-bottom-left-radius:4px;box-shadow:var(--shad);}
+.chat-msg .cm-time{display:block;font-size:9px;opacity:.7;margin-top:3px;text-align:right;}
+.chat-empty{padding:30px 16px;text-align:center;color:var(--abu);font-size:12px;}
+.chat-input-wrap{display:none;gap:8px;padding:10px 12px;border-top:1px solid #e5e7eb;flex-shrink:0;background:var(--putih);}
+.chat-input-wrap input{flex:1;border:1.8px solid #e5e7eb;border-radius:20px;padding:10px 15px;font-size:12.5px;outline:none;background:var(--bg);}
+.chat-input-wrap input:focus{border-color:var(--h);background:var(--putih);}
+.chat-send{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--ht),var(--h));color:#fff;border:none;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.chat-send:disabled{opacity:.5;cursor:not-allowed;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;border-radius:20px;padding:10px 18px;font-size:12px;font-weight:700;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ══ CONFIRM MODAL ══ */
+.confirm-bg{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
+.confirm-bg.show{display:flex;}
+.confirm-box{background:var(--putih);border-radius:18px;max-width:340px;width:100%;padding:24px 22px 18px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:popIn .18s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.confirm-icon{width:52px;height:52px;border-radius:50%;background:#fef2f2;color:var(--r);font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.confirm-title{font-size:15px;font-weight:800;color:var(--abu2);margin-bottom:6px;}
+.confirm-msg{font-size:12.5px;color:var(--abu);line-height:1.5;margin-bottom:20px;}
+.confirm-actions{display:flex;gap:9px;}
+.confirm-btn{flex:1;padding:11px;border-radius:11px;border:none;font-size:12.5px;font-weight:800;cursor:pointer;}
+.confirm-btn.cancel{background:var(--bg);color:var(--abu2);}
+.confirm-btn.danger{background:var(--r);color:#fff;}
+.confirm-btn.neutral{background:var(--h);color:#fff;}
+.confirm-actions.col3{flex-direction:column;}
+.confirm-actions.col3 .confirm-btn{width:100%;}
+
+/* ══ MENU ARSIP ══ */
+.btn-menu-arsip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:9px;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.arsip-box .confirm-icon{background:var(--hm);color:var(--h);}
+.arsip-count{font-size:26px;font-weight:900;color:var(--abu2);margin:6px 0 2px;}
+
+/* ══ FOTO CHAT ══ */
+.chat-msg img.cm-img{max-width:100%;min-width:120px;min-height:90px;border-radius:10px;display:block;cursor:pointer;object-fit:cover;background:rgba(0,0,0,.04);}
+.chat-msg .cm-caption{margin-top:6px;}
+.cm-img-err{padding:14px;background:rgba(0,0,0,.04);border-radius:10px;font-size:11.5px;color:var(--abu);text-align:center;}
+.btn-attach{width:38px;height:38px;border-radius:50%;background:var(--bg);color:var(--h);border:none;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.attach-preview{display:none;align-items:center;gap:9px;padding:8px 12px;border-top:1px solid #e5e7eb;background:var(--bg);}
+.attach-preview.show{display:flex;}
+.attach-preview img{width:44px;height:44px;object-fit:cover;border-radius:9px;flex-shrink:0;}
+.attach-preview .ap-name{flex:1;font-size:11px;color:var(--abu2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.attach-preview .ap-remove{background:none;border:none;color:var(--r);font-size:16px;cursor:pointer;flex-shrink:0;}
+.img-viewer-bg{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:950;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px;}
+.img-viewer-bg.show{display:flex;}
+.img-viewer-bg img{max-width:100%;max-height:80vh;border-radius:8px;}
+.img-viewer-toolbar{display:flex;gap:10px;}
+.iv-btn{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:11px;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:6px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="btn-back" id="btnBack" onclick="handleBack()">←</button>
+  <div style="flex:1;min-width:0;">
+    <div class="topbar-title" id="pageTitle">💬 Chat Pelanggan</div>
+    <div class="topbar-sub" id="pageSub">Percakapan yang masuk ke akun Anda</div>
+  </div>
+  <button class="btn-del-thread" id="btnDelThread" onclick="hapusPercakapanAktif()" title="Hapus dari inbox saya">🗑️</button>
+  <button class="btn-del-permanen" id="btnDelPermanen" onclick="hapusPercakapanPermanenAktif()" title="Hapus permanen (kedua sisi)">⚠️</button>
+  <button class="btn-menu-arsip" id="btnMenuArsip" onclick="bukaMenuArsip()" title="Kelola arsip chat">🗄️</button>
+</div>
+
+
+<div class="inbox-wrap" id="inboxWrap">
+  <div class="skel-card"><div class="skel" style="height:14px;width:50%;margin-bottom:8px;"></div><div class="skel" style="height:11px;width:70%;"></div></div>
+  <div class="skel-card"><div class="skel" style="height:14px;width:40%;margin-bottom:8px;"></div><div class="skel" style="height:11px;width:60%;"></div></div>
+</div>
+<div class="empty" id="emptyState" style="display:none;">
+  <div style="font-size:44px;margin-bottom:10px;">💬</div>
+  <div style="font-size:14px;font-weight:700;">Belum ada chat masuk</div>
+  <div style="font-size:12px;margin-top:4px;">Percakapan dari pelanggan akan muncul di sini.</div>
+</div>
+
+<div class="chat-thread" id="chatThread"></div>
+<div class="attach-preview" id="attachPreview">
+  <img id="apImg" src="">
+  <div class="ap-name" id="apName"></div>
+  <button class="ap-remove" onclick="batalLampiran()">✕</button>
+</div>
+<div class="chat-input-wrap" id="chatInputWrap">
+  <button class="btn-attach" onclick="document.getElementById('fileInput').click()">📎</button>
+  <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="pilihLampiran(this)">
+  <input type="text" id="chatInput" placeholder="Tulis balasan..." maxlength="1000" autocomplete="off" name="mcinput_mm" onkeydown="if(event.key==='Enter')kirimBalasan()">
+  <button class="chat-send" id="chatSendBtn" onclick="kirimBalasan()">➤</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Modal konfirmasi -->
+<div class="confirm-bg" id="confirmBg">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title" id="confirmTitle">Hapus Percakapan?</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-actions">
+      <button class="confirm-btn cancel" onclick="_confirmResolve(false)">Batal</button>
+      <button class="confirm-btn danger" onclick="_confirmResolve(true)">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- Viewer foto full-screen -->
+<div class="img-viewer-bg" id="imgViewerBg" onclick="if(event.target===this)closeImgViewer()">
+  <img id="imgViewerSrc" src="">
+  <div class="img-viewer-toolbar">
+    <a class="iv-btn" id="ivDownload" href="#" target="_blank" download>⬇️ Unduh</a>
+    <button class="iv-btn" onclick="closeImgViewer()">✕ Tutup</button>
+  </div>
+</div>
+
+<!-- Modal kelola arsip -->
+<div class="confirm-bg" id="arsipBg">
+  <div class="confirm-box arsip-box">
+    <div class="confirm-icon">🗄️</div>
+    <div class="confirm-title">Arsip Chat</div>
+    <div class="arsip-count" id="arsipCount">–</div>
+    <div class="confirm-msg" id="arsipSub">pesan tersimpan di ChatArsip</div>
+    <div class="confirm-actions" id="arsipActions">
+      <button class="confirm-btn cancel" onclick="tutupMenuArsip()">Tutup</button>
+      <button class="confirm-btn danger" id="btnKosongkanArsip" onclick="kosongkanArsip()" style="display:none;">Kosongkan Arsip</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ⚠️ GANTI dengan URL exec hasil deploy Code.gs Apti (samakan dengan file lain)
+const SCRIPT_URL = "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT/exec";
+
+function apiGet(action, params){
+  var url = new URL(SCRIPT_URL);
+  url.searchParams.set('action', action);
+  Object.keys(params||{}).forEach(function(k){ url.searchParams.set(k, params[k]); });
+  return fetch(url.toString()).then(function(r){ return r.json(); });
+}
+function apiPost(action, body){
+  var url = new URL(SCRIPT_URL);
+  url.searchParams.set('action', action);
+  return fetch(url.toString(), {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(body||{})
+  }).then(function(r){ return r.json(); });
+}
+
+function _p(k){ try{ return new URLSearchParams(window.location.search).get(k)||''; }catch(e){ return ''; } }
+var TOKEN=_p('token')||sessionStorage.getItem('mm_token')||'';
+var NAMA=(function(){ try{ var v=_p('nama'); return v?decodeURIComponent(v):sessionStorage.getItem('mm_nama')||''; }catch(e){ return ''; }})();
+var ROLE=_p('role')||sessionStorage.getItem('mm_role')||'';
+var HAK=_p('hak')||sessionStorage.getItem('mm_hak')||'';
+var EXPIRE=Number(_p('expire')||sessionStorage.getItem('mm_expire')||'0');
+var USERNAME=_p('username')||sessionStorage.getItem('mm_username')||'';
+if(_p('token')){ sessionStorage.setItem('mm_token',TOKEN);sessionStorage.setItem('mm_nama',NAMA);sessionStorage.setItem('mm_role',ROLE);sessionStorage.setItem('mm_hak',HAK);sessionStorage.setItem('mm_expire',String(EXPIRE));sessionStorage.setItem('mm_username',USERNAME); }
+if(!TOKEN){ window.location.href='./login.html'; throw new Error('no token'); }
+
+function _esc(s){ var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML; }
+function handleBack(){ if(_selectedId){ backToInbox(); } else { goBack(); } }
+function goBack(){
+  var p=new URLSearchParams({page:'dashboard',token:TOKEN,nama:encodeURIComponent(NAMA),role:ROLE,hak:HAK,expire:String(EXPIRE),username:USERNAME});
+  window.location.href=SCRIPT_URL+'?'+p.toString();
+}
+function showToast(msg){ var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3200); }
+
+var _confirmResolveFn=null;
+function showConfirmModal(title, msg){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('confirmBg').classList.add('show');
+  return new Promise(function(resolve){ _confirmResolveFn=resolve; });
+}
+function _confirmResolve(val){
+  document.getElementById('confirmBg').classList.remove('show');
+  if(_confirmResolveFn){ _confirmResolveFn(val); _confirmResolveFn=null; }
+}
+// Modal pilihan 3 opsi (Batal / Arsipkan / Hapus Tuntas) — reuse confirm-box, tapi tombolnya dibuat manual
+function showChoiceModal(title, msg){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  var actions=document.querySelector('#confirmBg .confirm-actions');
+  actions.className='confirm-actions col3';
+  actions.innerHTML=
+    '<button class="confirm-btn neutral" id="btnPilihArsip">📥 Arsipkan (masih tersimpan)</button>'+
+    '<button class="confirm-btn danger" id="btnPilihTuntas">🗑️ Hapus Tuntas (tidak disimpan)</button>'+
+    '<button class="confirm-btn cancel" id="btnPilihBatal">Batal</button>';
+  document.getElementById('confirmBg').classList.add('show');
+  return new Promise(function(resolve){
+    document.getElementById('btnPilihArsip').onclick=function(){ document.getElementById('confirmBg').classList.remove('show'); resolve('arsip'); };
+    document.getElementById('btnPilihTuntas').onclick=function(){ document.getElementById('confirmBg').classList.remove('show'); resolve('tuntas'); };
+    document.getElementById('btnPilihBatal').onclick=function(){ document.getElementById('confirmBg').classList.remove('show'); resolve('batal'); };
+  });
+}
+// Kembalikan confirm-box ke mode 2 tombol standar (dipanggil setelah showChoiceModal dipakai)
+function _resetConfirmActions(){
+  var actions=document.querySelector('#confirmBg .confirm-actions');
+  actions.className='confirm-actions';
+  actions.innerHTML='<button class="confirm-btn cancel" onclick="_confirmResolve(false)">Batal</button><button class="confirm-btn danger" onclick="_confirmResolve(true)">Ya, Hapus</button>';
+}
+function openImgViewer(url){
+  document.getElementById('imgViewerSrc').src=url;
+  var m=url.match(/id=([^&]+)/);
+  var fid=m?m[1]:'';
+  document.getElementById('ivDownload').href=fid?('https://drive.google.com/uc?export=download&id='+fid):url;
+  document.getElementById('imgViewerBg').classList.add('show');
+}
+function closeImgViewer(){ document.getElementById('imgViewerBg').classList.remove('show'); }
+
+function bukaMenuArsip(){
+  document.getElementById('arsipCount').textContent='...';
+  document.getElementById('btnKosongkanArsip').style.display=(String(ROLE).toLowerCase()==='superadmin')?'flex':'none';
+  document.getElementById('arsipBg').classList.add('show');
+  apiGet('jumlahArsipChat', { token: TOKEN }).then(function(r){
+      if(!r.ok){ document.getElementById('arsipCount').textContent='–'; showToast('⚠️ '+r.msg); return; }
+      document.getElementById('arsipCount').textContent=r.jumlah;
+      document.getElementById('arsipSub').textContent=r.jumlah===1?'pesan tersimpan di ChatArsip':'pesan tersimpan di ChatArsip';
+    })
+    .catch(function(e){ document.getElementById('arsipCount').textContent='–'; showToast('⚠️ '+((e&&e.message)||'Gagal memuat.')); });
+}
+function tutupMenuArsip(){ document.getElementById('arsipBg').classList.remove('show'); }
+async function kosongkanArsip(){
+  tutupMenuArsip();
+  var ok = await showConfirmModal('Kosongkan Arsip Chat?', 'SEMUA riwayat chat yang sudah diarsipkan (dari semua customer & admin) akan dihapus permanen dari sheet ChatArsip. Tindakan ini tidak bisa dibatalkan.');
+  if(!ok) return;
+  apiPost('kosongkanArsipChat', { token: TOKEN }).then(function(r){
+      if(!r.ok){ showToast('⚠️ '+r.msg); return; }
+      showToast('✅ '+r.msg);
+    })
+    .catch(function(e){ showToast('⚠️ '+((e&&e.message)||'Gagal menghapus.')); });
+}
+
+var _inboxAll=[], _selectedId=null, _selectedNama='', _pollTimer=null, _inboxPollTimer=null, _lastMsgCount=-1;
+
+function loadInbox(){
+  apiGet('chatInboxAdmin', { token: TOKEN }).then(function(r){
+      if(!r.ok){ showToast('⚠️ '+r.msg); return; }
+      _inboxAll=r.data||[];
+      renderInbox();
+    })
+    .catch(function(e){ showToast('⚠️ '+((e&&e.message)||'Gagal memuat.')); });
+}
+function renderInbox(){
+  var el=document.getElementById('inboxWrap'); el.innerHTML='';
+  document.getElementById('emptyState').style.display=_inboxAll.length?'none':'block';
+  _inboxAll.forEach(function(c){
+    var inisial=(c.NAMA_PELANGGAN||'?').charAt(0).toUpperCase();
+    var jam=(c.LAST_WAKTU||'').substring(0,16).replace('T',' ');
+    var div=document.createElement('div'); div.className='inbox-card';
+    div.innerHTML=
+      '<div class="inbox-avatar">'+_esc(inisial)+'</div>'+
+      '<div class="inbox-info">'+
+        '<div class="inbox-nama">'+_esc(c.NAMA_PELANGGAN||'-')+'</div>'+
+        '<div class="inbox-preview">'+_esc(c.LAST_PESAN||'')+'</div>'+
+      '</div>'+
+      '<div class="inbox-right">'+
+        '<div class="inbox-time">'+_esc(jam)+'</div>'+
+        (c.UNREAD>0?'<div class="inbox-unread">'+(c.UNREAD>9?'9+':c.UNREAD)+'</div>':'')+
+      '</div>'+
+      '<button class="btn-del-inbox" title="Hapus percakapan">🗑️</button>';
+    div.onclick=(function(cc){ return function(){ openThread(cc.ID_PELANGGAN, cc.NAMA_PELANGGAN); }; })(c);
+    div.querySelector('.btn-del-inbox').onclick=(function(cc){ return function(ev){ ev.stopPropagation(); hapusPercakapan(cc.ID_PELANGGAN, cc.NAMA_PELANGGAN); }; })(c);
+    el.appendChild(div);
+  });
+}
+async function hapusPercakapan(idPelanggan, nama){
+  var ok = await showConfirmModal('Hapus Percakapan?', 'Percakapan dengan "'+nama+'" akan disembunyikan dari inbox Anda. Customer masih bisa melihat riwayatnya, dan percakapan akan muncul lagi di inbox kalau customer kirim pesan baru.');
+  if(!ok) return;
+  apiPost('hapusChatConversation', { token: TOKEN, idPelanggan: idPelanggan }).then(function(r){
+      if(!r.ok){ showToast('⚠️ '+r.msg); return; }
+      showToast('✅ '+r.msg);
+      if(_selectedId===idPelanggan) backToInbox(); else loadInbox();
+    })
+    .catch(function(e){ showToast('⚠️ '+((e&&e.message)||'Gagal menghapus.')); });
+}
+function hapusPercakapanAktif(){
+  if(!_selectedId) return;
+  hapusPercakapan(_selectedId, _selectedNama);
+}
+async function hapusPercakapanPermanen(idPelanggan, nama){
+  var pilihan = await showChoiceModal('Hapus Permanen?', 'Percakapan dengan "'+nama+'" akan hilang dari kedua sisi. Pilih: simpan ke arsip (masih bisa ditelusuri lewat sheet ChatArsip), atau hapus tuntas (tidak disimpan sama sekali).');
+  _resetConfirmActions();
+  if(pilihan==='batal') return;
+  apiPost('hapusChatPermanen', { token: TOKEN, idPelanggan: idPelanggan, mode: pilihan }).then(function(r){
+      if(!r.ok){ showToast('⚠️ '+r.msg); return; }
+      showToast('✅ '+r.msg);
+      if(_selectedId===idPelanggan) backToInbox(); else loadInbox();
+    })
+    .catch(function(e){ showToast('⚠️ '+((e&&e.message)||'Gagal menghapus.')); });
+}
+function hapusPercakapanPermanenAktif(){
+  if(!_selectedId) return;
+  hapusPercakapanPermanen(_selectedId, _selectedNama);
+}
+function openThread(idPelanggan, nama){
+  _selectedId=idPelanggan; _selectedNama=nama; _lastMsgCount=-1;
+  batalLampiran();
+  document.getElementById('btnDelThread').classList.add('show');
+  document.getElementById('btnDelPermanen').classList.add('show');
+  document.getElementById('pageTitle').textContent=nama||'Pelanggan';
+  document.getElementById('pageSub').textContent='Membalas sebagai '+(NAMA||'Admin');
+  document.getElementById('inboxWrap').style.display='none';
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('chatThread').style.display='flex';
+  document.getElementById('chatInputWrap').style.display='flex';
+  document.getElementById('chatThread').innerHTML='<div class="chat-empty">Memuat percakapan...</div>';
+  loadThread(true);
+  stopInboxPoll();
+  startThreadPoll();
+}
+function backToInbox(){
+  _selectedId=null;
+  stopThreadPoll();
+  document.getElementById('btnDelThread').classList.remove('show');
+  document.getElementById('btnDelPermanen').classList.remove('show');
+  document.getElementById('pageTitle').textContent='💬 Chat Pelanggan';
+  document.getElementById('pageSub').textContent='Percakapan yang masuk ke akun Anda';
+  document.getElementById('inboxWrap').style.display='flex';
+  document.getElementById('chatThread').style.display='none';
+  document.getElementById('chatInputWrap').style.display='none';
+  loadInbox();
+  startInboxPoll();
+}
+function loadThread(forceScroll){
+  if(!_selectedId) return;
+  apiGet('chatHistoryAdmin', { token: TOKEN, idPelanggan: _selectedId }).then(function(r){
+      if(!r.ok) return;
+      var list=r.data||[];
+      if(!forceScroll && list.length===_lastMsgCount) return;
+      var adaBaru=list.length!==_lastMsgCount;
+      _lastMsgCount=list.length;
+      renderThread(list, forceScroll||adaBaru);
+    })
+    .catch(function(){});
+}
+function renderThread(list, scrollDown){
+  var el=document.getElementById('chatThread');
+  if(!list.length){ el.innerHTML='<div class="chat-empty">Belum ada pesan di percakapan ini.</div>'; return; }
+  el.innerHTML=list.map(function(m){
+    var jam=(m.WAKTU||'').split(' ')[1]||''; jam=jam.substring(0,5);
+    var isMe=m.PENGIRIM==='admin';
+    var body = m.TIPE==='gambar'
+      ? '<img class="cm-img" src="'+_esc(m.URL_LAMPIRAN)+'" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'cm-img-err\',textContent:\'⚠️ Foto gagal dimuat\'}))" onclick="openImgViewer(\''+_esc(m.URL_LAMPIRAN)+'\')">'+(m.PESAN?'<div class="cm-caption">'+_esc(m.PESAN)+'</div>':'')
+      : _esc(m.PESAN);
+    return '<div class="chat-msg '+(isMe?'me':'them')+'">'+body+'<span class="cm-time">'+_esc(jam)+'</span></div>';
+  }).join('');
+  if(scrollDown) el.scrollTop=el.scrollHeight;
+}
+var _pendingFoto=null; // {base64, mime, name}
+function pilihLampiran(inp){
+  var file=inp.files && inp.files[0];
+  inp.value='';
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('⚠️ File harus berupa gambar.'); return; }
+  if(file.size > 2*1024*1024){ showToast('⚠️ Ukuran foto maks. 2MB.'); return; }
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var base64=e.target.result.split(',')[1];
+    _pendingFoto={ base64:base64, mime:file.type, name:file.name };
+    document.getElementById('apImg').src=e.target.result;
+    document.getElementById('apName').textContent=file.name;
+    document.getElementById('attachPreview').classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+function batalLampiran(){
+  _pendingFoto=null;
+  document.getElementById('attachPreview').classList.remove('show');
+}
+function kirimBalasan(){
+  if(!_selectedId) return;
+  var inp=document.getElementById('chatInput');
+  var pesan=inp.value.trim();
+  if(_pendingFoto){
+    var foto=_pendingFoto; _pendingFoto=null;
+    document.getElementById('attachPreview').classList.remove('show');
+    inp.value='';
+    var btn=document.getElementById('chatSendBtn'); btn.disabled=true;
+    apiPost('kirimChatFotoAdmin', {
+      token: TOKEN, idPelanggan: _selectedId,
+      base64Data: foto.base64, mimeType: foto.mime, caption: pesan
+    }).then(function(r){
+        btn.disabled=false;
+        if(!r.ok){ showToast('⚠️ '+r.msg); return; }
+        loadThread(true);
+      })
+      .catch(function(e){ btn.disabled=false; showToast('⚠️ '+((e&&e.message)||'Gagal mengirim.')); });
+    return;
+  }
+  if(!pesan) return;
+  var btn=document.getElementById('chatSendBtn');
+  btn.disabled=true; inp.value='';
+  apiPost('kirimChatAdmin', { token: TOKEN, idPelanggan: _selectedId, pesan: pesan }).then(function(r){
+      btn.disabled=false;
+      if(!r.ok){ showToast('⚠️ '+r.msg); inp.value=pesan; return; }
+      loadThread(true);
+    })
+    .catch(function(e){ btn.disabled=false; showToast('⚠️ '+((e&&e.message)||'Gagal mengirim.')); inp.value=pesan; });
+}
+function startThreadPoll(){ stopThreadPoll(); _pollTimer=setInterval(function(){ loadThread(false); },6000); }
+function stopThreadPoll(){ clearInterval(_pollTimer); _pollTimer=null; }
+function startInboxPoll(){ stopInboxPoll(); _inboxPollTimer=setInterval(loadInbox,15000); }
+function stopInboxPoll(){ clearInterval(_inboxPollTimer); _inboxPollTimer=null; }
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('imgViewerBg').classList.contains('show')){ closeImgViewer(); return; }
+    if(document.getElementById('arsipBg').classList.contains('show')){ tutupMenuArsip(); return; }
+    if(document.getElementById('confirmBg').classList.contains('show')){ _confirmResolve(false); return; }
+    if(_selectedId){ backToInbox(); }
+  }
+});
+
+loadInbox();
+startInboxPoll();
+</script>
+</body>
+</html>

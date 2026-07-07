@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Login — MahaMeru E-Commerce</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --h:#1565c0;--ht:#0d47a1;--hm:#e3f2fd;
+  --r:#dc2626;--bg:#f0f4ff;--g:#16a34a;
+  --amber:#d97706;--purple:#7c3aed;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);overflow-x:hidden;}
+
+/* HERO */
+.hero{
+  background:linear-gradient(160deg,#0d47a1 0%,#1565c0 40%,#e65100 100%);
+  padding:40px 24px 70px;text-align:center;position:relative;overflow:hidden;flex-shrink:0;
+}
+.hero::before{content:'';position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,.05);top:-80px;right:-70px;}
+.hero::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.05);bottom:-20px;left:-50px;}
+.hero-inner{position:relative;z-index:1;}
+.logo-wrap{display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-radius:24px;font-size:44px;margin-bottom:14px;backdrop-filter:blur(4px);animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;}
+.hero-title{color:#fff;font-size:22px;font-weight:900;letter-spacing:-.02em;animation:fadeUp .4s ease both .1s;}
+.hero-title span{color:#ffcc02;}
+.hero-sub{color:rgba(255,255,255,.7);font-size:12px;margin-top:5px;animation:fadeUp .4s ease both .15s;}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;color:rgba(255,255,255,.85);font-size:11px;font-weight:600;animation:fadeUp .4s ease both .2s;}
+
+/* CARD */
+.card-wrap{flex:1;display:flex;flex-direction:column;padding:0 16px 28px;margin-top:-36px;position:relative;z-index:10;}
+.card{background:#fff;border-radius:22px;box-shadow:0 8px 32px rgba(13,71,161,.16),0 2px 8px rgba(0,0,0,.06);overflow:hidden;animation:slideUp .4s cubic-bezier(.4,0,.2,1) both .1s;}
+
+.card-header{padding:18px 20px 0;text-align:center;}
+.card-title{font-size:18px;font-weight:900;color:var(--ht);letter-spacing:-.01em;}
+.card-title-line{display:block;width:40px;height:3px;background:linear-gradient(90deg,#0d47a1,#e65100);border-radius:2px;margin:6px auto 0;}
+
+.cust-tabs{display:flex;gap:0;background:var(--bg);border-radius:12px;padding:3px;margin-bottom:18px;}
+.cust-tab{flex:1;padding:9px 4px;text-align:center;font-size:12px;font-weight:700;color:#9ca3af;cursor:pointer;border-radius:9px;transition:all .2s;}
+.cust-tab.active{background:#fff;color:var(--ht);box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.cust-pane{display:none;}.cust-pane.active{display:block;}
+
+.form-body{padding:16px 20px 22px;}
+.form-group{margin-bottom:13px;}
+label{display:block;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.req{color:var(--r);}
+.iw{position:relative;}
+.iw .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+input[type=text],input[type=password],input[type=email],input[type=tel]{
+  width:100%;padding:12px 44px 12px 40px;border:1.8px solid #e5e7eb;border-radius:12px;
+  font-size:14px;color:#111;background:var(--bg);transition:border-color .2s,box-shadow .2s,background .2s;-webkit-appearance:none;
+}
+input:focus{outline:none;border-color:var(--h);box-shadow:0 0 0 3px rgba(21,101,192,.12);background:#fff;}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:17px;color:#6b7280;padding:4px;}
+
+.alert{border-radius:11px;padding:10px 13px;font-size:13px;margin-bottom:12px;display:none;align-items:center;gap:8px;font-weight:500;animation:shake .35s ease;}
+.alert.err{background:#fef2f2;color:var(--r);border:1.5px solid #fca5a5;display:flex;}
+.alert.ok {background:var(--hm);color:var(--h);border:1.5px solid #93c5fd;display:flex;}
+
+.btn-login{width:100%;padding:14px;background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;border:none;border-radius:13px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(13,71,161,.35);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px;transition:opacity .2s,transform .1s;}
+.btn-login:active{transform:scale(.97);}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-cust{background:linear-gradient(135deg,#e65100,#f57c00);box-shadow:0 4px 16px rgba(230,81,0,.3);}
+.btn-ghost{width:100%;padding:12px;background:transparent;border:1.8px solid #e5e7eb;color:#6b7280;border-radius:13px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;transition:border-color .2s;}
+.btn-ghost:hover{border-color:#93c5fd;color:var(--h);}
+
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0 10px;}
+.divider span{font-size:11px;color:#9ca3af;white-space:nowrap;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e5e7eb;}
+.lupa-link{text-align:center;margin-top:12px;}
+.lupa-link a{font-size:12px;color:var(--h);font-weight:700;text-decoration:none;cursor:pointer;}
+.guest-row{text-align:center;margin-top:10px;font-size:12px;color:#9ca3af;}
+.guest-row a{color:var(--amber);font-weight:700;cursor:pointer;text-decoration:none;}
+
+.rd-ov{position:fixed;inset:0;background:linear-gradient(135deg,#0d47a1,#e65100);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;}
+.rd-ov.show{display:flex;}
+.rd-logo{font-size:56px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+.rd-title{color:#fff;font-size:16px;font-weight:800;}
+.rd-sub{color:rgba(255,255,255,.7);font-size:12px;}
+.rd-dots{display:flex;gap:6px;margin-top:8px;}
+.rd-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.45);animation:dotP 1.2s ease infinite;}
+.rd-dot:nth-child(2){animation-delay:.2s;}
+.rd-dot:nth-child(3){animation-delay:.4s;}
+
+.toast-wrap{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:99999;max-width:360px;width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;}
+.toast-wrap.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.toast{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 8px 28px rgba(0,0,0,.18);display:flex;gap:11px;align-items:flex-start;border-left:4px solid var(--h);}
+.toast.warn{border-left-color:var(--amber);}
+.toast-ico{font-size:20px;flex-shrink:0;line-height:1;margin-top:1px;}
+.toast-body{flex:1;min-width:0;}
+.toast-title{font-size:13px;font-weight:800;color:#1f2937;margin-bottom:2px;}
+.toast-msg{font-size:12px;color:#6b7280;line-height:1.5;}
+.toast-close{background:none;border:none;font-size:15px;color:#9ca3af;cursor:pointer;padding:2px;flex-shrink:0;}
+.footer{text-align:center;padding:16px 0 4px;font-size:11px;color:#9ca3af;}
+
+@keyframes popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes dotP{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.2);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="logo-wrap">🛍️</div>
+    <div class="hero-title">Maha<span>Meru</span></div>
+    <div class="hero-sub">Platform Belanja Online Terpercaya</div>
+    <div class="hero-badge">🏪&nbsp;E-Commerce Profesional Indonesia</div>
+  </div>
+</div>
+
+<!-- CARD -->
+<div class="card-wrap">
+  <div class="card">
+
+    <div class="card-header">
+      <div class="card-title">Login</div>
+      <span class="card-title-line"></span>
+    </div>
+
+    <div class="form-body">
+
+      <div class="cust-tabs">
+        <div class="cust-tab active" id="ctab-login" onclick="switchCust('login')">🔑 Masuk</div>
+        <div class="cust-tab" id="ctab-daftar" onclick="switchCust('daftar')">📝 Daftar Baru</div>
+      </div>
+
+      <!-- ===== PANE MASUK ===== -->
+      <div class="cust-pane active" id="cpane-login">
+        <div id="alLogin" class="alert"></div>
+
+        <div class="form-group">
+          <label>Email / Username <span class="req">*</span></label>
+          <div class="iw"><span class="ico">👤</span>
+            <input type="text" id="loginId" placeholder="email@anda.com atau username"
+              inputmode="email" autocapitalize="none" autocomplete="off" name="loginid_mm">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password <span class="req">*</span></label>
+          <div class="iw"><span class="ico">🔒</span>
+            <input type="password" id="loginPass" placeholder="Password Anda" autocomplete="off" name="loginpass_mm">
+            <button class="eye" onclick="toggleEye('loginPass','eL1')" id="eL1">👁</button>
+          </div>
+        </div>
+        <button class="btn-login" id="btnLogin" onclick="doLogin()">🔑 Masuk</button>
+        <div class="divider"><span>atau</span></div>
+        <div class="guest-row">Belanja tanpa akun? <a onclick="belanjaGuest()">Lanjut sebagai Tamu →</a></div>
+        <div class="lupa-link" style="margin-top:10px;"><a onclick="goLupa()">Lupa password?</a></div>
+      </div>
+
+      <!-- ===== PANE DAFTAR ===== -->
+      <div class="cust-pane" id="cpane-daftar">
+        <div id="alDaftar" class="alert"></div>
+        <div class="form-group">
+          <label>Nama Lengkap <span class="req">*</span></label>
+          <div class="iw"><span class="ico">👤</span>
+            <input type="text" id="rdNama" placeholder="Nama lengkap Anda" autocomplete="off" name="rdnama_mm">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email <span class="req">*</span></label>
+          <div class="iw"><span class="ico">📧</span>
+            <input type="email" id="rdEmail" placeholder="email@anda.com" inputmode="email" autocomplete="off" name="rdemail_mm">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>No. HP</label>
+          <div class="iw"><span class="ico">📞</span>
+            <input type="tel" id="rdHp" placeholder="08xxxxxxxxxx" inputmode="tel" autocomplete="off" name="rdhp_mm">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password <span class="req">*</span></label>
+          <div class="iw"><span class="ico">🔒</span>
+            <input type="password" id="rdPass" placeholder="Min. 6 karakter" autocomplete="off" name="rdpass_mm">
+            <button class="eye" onclick="toggleEye('rdPass','eR1')" id="eR1">👁</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Konfirmasi Password <span class="req">*</span></label>
+          <div class="iw"><span class="ico">✅</span>
+            <input type="password" id="rdPassK" placeholder="Ulangi password" autocomplete="off" name="rdpassk_mm">
+            <button class="eye" onclick="toggleEye('rdPassK','eR2')" id="eR2">👁</button>
+          </div>
+        </div>
+        <button class="btn-login btn-cust" id="btnDaftar" onclick="daftarCust()">📝 Daftar &amp; Langsung Belanja</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">&copy; 2026 MahaMeru E-Commerce &nbsp;&middot;&nbsp; v1.0</div>
+</div>
+
+<!-- REDIRECT OVERLAY -->
+<div class="rd-ov" id="rdOv">
+  <div class="rd-logo">🛍️</div>
+  <div class="rd-title" id="rdTitle">Selamat datang!</div>
+  <div class="rd-sub" id="rdSub">Mengalihkan halaman…</div>
+  <div class="rd-dots"><div class="rd-dot"></div><div class="rd-dot"></div><div class="rd-dot"></div></div>
+</div>
+
+<!-- TOAST NOTIFIKASI -->
+<div class="toast-wrap" id="toastWrap">
+  <div class="toast" id="toastBox">
+    <div class="toast-ico" id="toastIco">ℹ️</div>
+    <div class="toast-body">
+      <div class="toast-title" id="toastTitle">Info</div>
+      <div class="toast-msg" id="toastMsg"></div>
+    </div>
+    <button class="toast-close" onclick="hideToast()">✕</button>
+  </div>
+</div>
+
+<script>
+// ⚠️ GANTI dengan URL exec hasil deploy Code.gs Apti (samakan dengan file lain)
+const SCRIPT_URL = "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT/exec";
+
+function apiPost(action, body){
+  var url = new URL(SCRIPT_URL);
+  url.searchParams.set('action', action);
+  return fetch(url.toString(), {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(body||{})
+  }).then(function(r){ return r.json(); });
+}
+
+// Halaman statis biasa (bukan di-render GAS) -- navigasi cukup pakai
+// window.location langsung, tidak perlu trik anchor/iframe seperti versi GAS.
+function _navTo(url){ window.location.href = url; }
+
+function _isEmail(val){ return val.indexOf('@') !== -1; }
+
+function switchCust(t){
+  ['login','daftar'].forEach(function(x){
+    document.getElementById('ctab-'+x).classList.toggle('active', x===t);
+    document.getElementById('cpane-'+x).classList.toggle('active', x===t);
+  });
+}
+if(window.location.hash==='#daftar') switchCust('daftar');
+
+function toggleEye(iId,bId){
+  var i = document.getElementById(iId);
+  i.type = i.type==='password' ? 'text' : 'password';
+  document.getElementById(bId).textContent = i.type==='password' ? '👁' : '🙈';
+}
+function showAl(id,msg,type){
+  var el=document.getElementById(id); el.textContent=msg; el.className='alert '+type;
+}
+function hideAl(id){ document.getElementById(id).className='alert'; }
+function showOverlay(nama, sub){
+  document.getElementById('rdTitle').textContent = 'Selamat datang, ' + (nama||'') + '!';
+  document.getElementById('rdSub').textContent   = sub || 'Mengalihkan halaman…';
+  document.getElementById('rdOv').classList.add('show');
+}
+
+// ── LOGIN SATU PINTU: otomatis deteksi Customer vs Admin ──
+function doLogin(){
+  var id   = document.getElementById('loginId').value.trim();
+  var pass = document.getElementById('loginPass').value;
+  var btn  = document.getElementById('btnLogin');
+  var LBL  = '🔑 Masuk';
+  hideAl('alLogin');
+  if(!id||!pass){ showAl('alLogin','⚠️ Email/Username dan password wajib diisi.','err'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Memverifikasi…';
+
+  if(_isEmail(id)){
+    apiPost('loginCustomer', { email:id, password:pass }).then(function(r){
+        btn.disabled=false; btn.innerHTML=LBL;
+        if(!r.ok){ showAl('alLogin','⚠️ '+r.msg,'err'); return; }
+        try{
+          sessionStorage.setItem('mm_cust_token', r.token);
+          sessionStorage.setItem('mm_cust_nama',  r.nama);
+          sessionStorage.setItem('mm_cust_email', r.email);
+          sessionStorage.setItem('mm_cust_id',    r.id);
+          sessionStorage.setItem('mm_cust_expire',String(r.expire));
+        }catch(e){}
+        showOverlay(r.nama, 'Membuka halaman belanja…');
+        setTimeout(function(){ _navTo('./index.html'); }, 500);
+      })
+      .catch(function(e){ btn.disabled=false; btn.innerHTML=LBL; showAl('alLogin','⚠️ '+((e&&e.message)||'Gagal terhubung.'),'err'); });
+  } else {
+    apiPost('loginAdmin', { username:id, password:pass }).then(function(r){
+        btn.disabled=false; btn.innerHTML=LBL;
+        if(!r.ok){ showAl('alLogin','⚠️ '+r.msg,'err'); return; }
+        try{
+          sessionStorage.setItem('mm_token',    r.token);
+          sessionStorage.setItem('mm_nama',     r.nama);
+          sessionStorage.setItem('mm_role',     r.role);
+          sessionStorage.setItem('mm_hak',      r.hak);
+          sessionStorage.setItem('mm_expire',   String(r.expire));
+          sessionStorage.setItem('mm_username', id);
+        }catch(e){}
+        showOverlay(r.nama, 'Membuka panel admin…');
+        var p=new URLSearchParams({
+          page:'dashboard', token:r.token, nama:encodeURIComponent(r.nama),
+          role:r.role, hak:r.hak, expire:String(r.expire), username:id
+        });
+        setTimeout(function(){ window.location.href = SCRIPT_URL+'?'+p.toString(); }, 500);
+      })
+      .catch(function(e){ btn.disabled=false; btn.innerHTML=LBL; showAl('alLogin','⚠️ '+((e&&e.message)||'Gagal terhubung.'),'err'); });
+  }
+}
+
+// ── DAFTAR CUSTOMER ──
+function daftarCust(){
+  var nama  = document.getElementById('rdNama').value.trim();
+  var email = document.getElementById('rdEmail').value.trim();
+  var hp    = String(document.getElementById('rdHp').value).trim();
+  var pass  = document.getElementById('rdPass').value;
+  var passK = document.getElementById('rdPassK').value;
+  var btn   = document.getElementById('btnDaftar');
+  var LBL   = '📝 Daftar & Langsung Belanja';
+  hideAl('alDaftar');
+  if(!nama||!email||!pass){ showAl('alDaftar','⚠️ Nama, email, dan password wajib diisi.','err'); return; }
+  if(pass.length<6){ showAl('alDaftar','⚠️ Password minimal 6 karakter.','err'); return; }
+  if(pass!==passK){ showAl('alDaftar','⚠️ Konfirmasi password tidak cocok.','err'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Mendaftarkan…';
+  apiPost('registerCustomer', { payload: { NAMA:nama, EMAIL:email, HP:hp, PASSWORD:pass } }).then(function(r){
+      btn.disabled=false; btn.innerHTML=LBL;
+      if(!r.ok){ showAl('alDaftar','⚠️ '+r.msg,'err'); return; }
+      try{
+        sessionStorage.setItem('mm_cust_token', r.token);
+        sessionStorage.setItem('mm_cust_nama',  r.nama);
+        sessionStorage.setItem('mm_cust_email', r.email);
+        sessionStorage.setItem('mm_cust_id',    r.id);
+        sessionStorage.setItem('mm_cust_expire',String(r.expire));
+      }catch(e){}
+      showOverlay(r.nama, 'Akun berhasil dibuat. Membuka toko…');
+      setTimeout(function(){ _navTo('./index.html'); }, 500);
+    })
+    .catch(function(e){ btn.disabled=false; btn.innerHTML=LBL; showAl('alDaftar','⚠️ '+((e&&e.message)||'Gagal terhubung.'),'err'); });
+}
+
+// ── BELANJA SEBAGAI TAMU ──
+function belanjaGuest(){
+  showOverlay('Tamu', 'Membuka halaman belanja…');
+  setTimeout(function(){ _navTo('./index.html'); }, 400);
+}
+
+function showToast(title, msg, type){
+  document.getElementById('toastIco').textContent = type==='warn' ? '⚠️' : 'ℹ️';
+  document.getElementById('toastBox').className = 'toast'+(type==='warn'?' warn':'');
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastWrap').classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(hideToast, 5000);
+}
+function hideToast(){ document.getElementById('toastWrap').classList.remove('show'); }
+
+// ── LUPA PASSWORD ──
+function goLupa(){
+  var id = document.getElementById('loginId').value.trim();
+  if(!id){
+    showToast('Isi Email/Username Dulu', 'Ketik email atau username Anda di kolom di atas, lalu klik "Lupa password?" lagi.', 'warn');
+  } else if(_isEmail(id)){
+    _navTo('./lupaPasswordCustomer.html?email='+encodeURIComponent(id));
+  } else {
+    _navTo('./lupaPassword.html?username='+encodeURIComponent(id));
+  }
+}
+
+// ── ENTER KEY ──
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter') return;
+  var aktif = document.querySelector('.cust-pane.active');
+  if(!aktif) return;
+  if(aktif.id === 'cpane-login') doLogin();
+  else if(aktif.id === 'cpane-daftar') daftarCust();
+});
+</script>
+</body>
+</html>
