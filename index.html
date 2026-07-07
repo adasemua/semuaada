@@ -364,6 +364,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height
 .ci-qty-row{display:flex;align-items:center;gap:6px;margin-top:4px;}
 .ci-qty-btn{width:24px;height:24px;border-radius:6px;background:var(--bg);border:1px solid #e5e7eb;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--abu2);}
 .ci-qty{font-size:12px;font-weight:800;color:var(--abu2);min-width:16px;text-align:center;}
+.ci-qty-inp{width:40px;text-align:center;padding:3px 2px;border:1.5px solid #e5e7eb;border-radius:6px;font-size:12px;font-weight:800;color:var(--abu2);outline:none;-webkit-appearance:none;font-variant-numeric:tabular-nums;}
+.ci-qty-inp:focus{border-color:var(--h);}
 .ci-del{margin-left:auto;font-size:16px;cursor:pointer;color:#e5e7eb;padding:4px;}
 .cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0 16px;font-weight:800;}
 .cart-total-lbl{font-size:13px;color:var(--abu2);}
@@ -759,7 +761,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height
 // ══════════════════════════════════════════════════════════
 //  STATE & SESSION
 // ══════════════════════════════════════════════════════════
-// ⚠️ GANTI dengan URL exec hasil deploy Code.gs
+// ⚠️ GANTI dengan URL exec hasil deploy Code.gs Apti (samakan dengan file lain)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFkHUV4eV2Rs2kwYbHA8IWi_DLEfunjq0-ZeyEihdiMnTE7GafbsiWa-pJSWJiShizXw/exec";
 var _SCRIPT_URL = SCRIPT_URL; // dipertahankan supaya kode lama yang masih merujuk _SCRIPT_URL tetap jalan
 
@@ -863,6 +865,17 @@ function updateQtyCart(id, delta){
   var idx=c.findIndex(function(i){ return i.id===id; });
   if(idx<0) return;
   c[idx].qty=Math.max(1, Math.min(c[idx].qty+delta, c[idx].stok));
+  saveCart(c); renderKeranjang();
+}
+
+// Input qty langsung (ketik angka), bukan cuma tombol +/- -- lebih cepat
+// untuk pembelian jumlah banyak. Sama seperti pola di halaman checkout.
+function setQtyDirectCart(id, val){
+  var c=getCart();
+  var idx=c.findIndex(function(i){ return i.id===id; });
+  if(idx<0) return;
+  var n=Math.floor(Number(val)||1);
+  c[idx].qty=Math.max(1, Math.min(n, c[idx].stok||9999));
   saveCart(c); renderKeranjang();
 }
 
@@ -1557,7 +1570,8 @@ function renderKeranjang(){
         '<div class="ci-harga">Rp '+i.harga.toLocaleString('id-ID')+'</div>'+
         '<div class="ci-qty-row">'+
           '<div class="ci-qty-btn" onclick="updateQtyCart(\''+i.id+'\', -1)">−</div>'+
-          '<div class="ci-qty">'+i.qty+'</div>'+
+          '<input class="ci-qty-inp" type="number" value="'+i.qty+'" min="1" max="'+(i.stok||9999)+'" step="1" '+
+            'onchange="setQtyDirectCart(\''+i.id+'\', this.value)" inputmode="numeric">'+
           '<div class="ci-qty-btn" onclick="updateQtyCart(\''+i.id+'\', 1)">+</div>'+
           '<div style="font-size:11px;color:var(--abu);margin-left:4px;">= Rp '+((i.harga*i.qty).toLocaleString('id-ID'))+'</div>'+
         '</div>'+
