@@ -651,12 +651,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height
 </div>
 
 <!-- ══ BOTTOM SHEET: CEK PESANAN ══ -->
-<div class="bs-bg" id="bsCekPesanan" onclick="closeBs('bsCekPesanan')">
+<div class="bs-bg" id="bsCekPesanan" onclick="closeCekPesanan()">
   <div class="bs-box" onclick="event.stopPropagation()">
     <div class="bs-handle"></div>
     <div class="bs-title-row">
       <div class="bs-title">📦 Cek Status Pesanan</div>
-      <button class="bs-close" onclick="closeBs('bsCekPesanan')">✕</button>
+      <button class="bs-close" onclick="closeCekPesanan()">✕</button>
     </div>
     <div style="font-size:12px;color:var(--abu);margin-bottom:12px;line-height:1.6;">Masukkan ID Pesanan dan email yang digunakan saat checkout.</div>
     <input class="bs-pesanan-input" type="text" id="cekIdPesanan" placeholder="ID Pesanan (contoh: ORD-ABC123)" autocomplete="off" name="cekid_mm">
@@ -762,7 +762,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height
 //  STATE & SESSION
 // ══════════════════════════════════════════════════════════
 // ⚠️ GANTI dengan URL exec hasil deploy Code.gs Apti (samakan dengan file lain)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdZQEosQ4N5tDEf06W4JwTEG-qf2bp4lQBBue68S5fX82LuIIaceXOSUfujD2H7q30Fw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1Qq4MVC54U5I1Xib3_5ZxCyUtd8lyn-RdnrMpSSPcWfIbABWW_JZjNBTFBqOs6-GFxQ/exec";
 var _SCRIPT_URL = SCRIPT_URL; // dipertahankan supaya kode lama yang masih merujuk _SCRIPT_URL tetap jalan
 
 // ── Pembungkus fetch API (GET, publik/read-only) ──
@@ -2099,6 +2099,15 @@ function closeKeranjang(){
 function closeBs(id){
   document.getElementById(id).classList.remove('show');
   document.body.style.overflow='';
+}
+// Bersihkan input ID Pesanan, Email, & hasil pencarian setiap modal Cek
+// Pesanan ditutup -- sebelumnya data lama masih nempel kalau dibuka lagi.
+function closeCekPesanan(){
+  closeBs('bsCekPesanan');
+  document.getElementById('cekIdPesanan').value='';
+  document.getElementById('cekEmailPesanan').value='';
+  document.getElementById('cekPesananResult').innerHTML='';
+  _cekIdPesanan=''; _cekEmail=''; _buktiFoto=null; _buktiPreview='';
 }
 function showToast(msg){
   var t=document.getElementById('toast');
