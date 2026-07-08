@@ -761,8 +761,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height
 // ══════════════════════════════════════════════════════════
 //  STATE & SESSION
 // ══════════════════════════════════════════════════════════
-// ⚠️ GANTI dengan URL exec hasil deploy Code.gs Apti (samakan dengan file lain)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1Qq4MVC54U5I1Xib3_5ZxCyUtd8lyn-RdnrMpSSPcWfIbABWW_JZjNBTFBqOs6-GFxQ/exec";
+// ⚠️ GANTI dengan URL exec hasil deploy Code.gs
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDLNv4WaX8PbZcD2jyTxI2RtiYl-3fAkOKJtLqmnr_miOnUIqVkZak3Y72GZ0u8vh7lg/exec";
 var _SCRIPT_URL = SCRIPT_URL; // dipertahankan supaya kode lama yang masih merujuk _SCRIPT_URL tetap jalan
 
 // ── Pembungkus fetch API (GET, publik/read-only) ──
@@ -1049,7 +1049,7 @@ function appendProdukCard(p){
   var badge=badges.length?'<div class="p-badges">'+badges.join('')+'</div>':'';
 
   // Media type label
-  var typeLabel=hasVideo?'<div class="p-media-type">▶ Video</div>':'';
+  var typeLabel=hasVideo?'<div class="p-media-type" onclick="event.stopPropagation();openDetail(\''+p.ID_INTERNAL+'\',true)">▶ Video</div>':'';
 
   // Foto utama
   var mediaHtml='';
@@ -1117,7 +1117,7 @@ function quickAddCart(e, idInternal){
 // ══════════════════════════════════════════════════════════
 var _detailProduk=null, _detailQty=1, _detailMediaIdx=0, _detailMediaList=[], _detailSatuanId='';
 
-function openDetail(idProduk){
+function openDetail(idProduk, jumpToVideo){
   document.getElementById('detailBg').classList.add('show');
   document.getElementById('detailContent').innerHTML='<div style="padding:40px;text-align:center;"><div class="ld-spin" style="margin:0 auto;"></div></div>';
   document.body.style.overflow='hidden';
@@ -1127,6 +1127,12 @@ function openDetail(idProduk){
       _detailProduk=r.data; _detailQty=1;
       _detailSatuanId=r.data.ID_SATUAN||((r.data.SATUAN_LIST&&r.data.SATUAN_LIST[0])?r.data.SATUAN_LIST[0].ID_SATUAN:'');
       renderDetail(r.data);
+      // Kalau dibuka lewat badge "▶ Video", langsung tampilkan slide video-nya,
+      // bukan mulai dari foto pertama seperti biasa.
+      if(jumpToVideo){
+        var vidIdx=_detailMediaList.findIndex(function(m){ return m.type==='youtube'||m.type==='drive'; });
+        if(vidIdx>-1) goSlide(vidIdx);
+      }
     })
     .catch(function(e){ showToast('⚠️ '+((e&&e.message)||'Gagal memuat produk.')); closeDetail(); });
 }
