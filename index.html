@@ -15,6 +15,8 @@
 <!-- ⚠️ GANTI dengan URL logo/foto toko yang sebenarnya (dipakai saat link dibagikan ke WhatsApp/Facebook/Instagram) -->
 <meta name="theme-color" content="#0d47a1">
 <link rel="icon" type="image/png" href="https://adasemua.github.io/semuaada/favicon.png">
+<link rel="icon" href="https://adasemua.github.io/semuaada/favicon.ico">
+<link rel="apple-touch-icon" href="https://adasemua.github.io/semuaada/apple-touch-icon.png">
 
 <!-- ══ OPEN GRAPH (preview saat link dibagikan) ══ -->
 <meta property="og:type" content="website">
@@ -762,7 +764,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);min-height
 //  STATE & SESSION
 // ══════════════════════════════════════════════════════════
 // ⚠️ GANTI dengan URL exec hasil deploy Code.gs
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLV6vGe4viB3hBhYCgNCbUlqQbDvhKgxO81qQQraal3rBrrqycHdveo_9s791zfgf4DQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4XIcTIYWl-RNCJJqSQY1Xvz3Q48OF4orDa1O_vyCh7EMrc794GESeFjhESWbx2immEg/exec";
 var _SCRIPT_URL = SCRIPT_URL; // dipertahankan supaya kode lama yang masih merujuk _SCRIPT_URL tetap jalan
 
 // ── Pembungkus fetch API (GET, publik/read-only) ──
@@ -987,10 +989,15 @@ function gotoPage(n){
 }
 
 var _katLoaded=false;
-// Load kategori terpisah — dipanggil sekali saat init
+// Load kategori terpisah — dipanggil sekali saat init. Mengembalikan promise
+// supaya pemanggil (init di bawah) bisa menunggu ini selesai SEBELUM render
+// kartu produk pertama kali -- sebelumnya loadKategori() & loadProduk()
+// dipanggil bersamaan tanpa saling tunggu, jadi kalau data produk datang
+// lebih dulu, kartu produk terlanjur dirender saat _katMap masih kosong,
+// otomatis fallback nampilin ID_KATEGORI mentah alih-alih NAMA kategori.
 function loadKategori(){
-  if(_katLoaded) return;
-  apiGet('kategori', {})
+  if(_katLoaded) return Promise.resolve();
+  return apiGet('kategori', {})
     .then(function(r){
       if(!r || !r.ok) return;
       _katLoaded=true;
@@ -2129,8 +2136,7 @@ function _navTo(url){ window.top.location.href=url; }
 //  INIT
 // ══════════════════════════════════════════════════════════
 updateCartBadge();
-loadKategori();
-loadProduk();
+loadKategori().then(loadProduk);
 loadMemberVoucher();
 refreshChatBadge();
 loadBannerCarousel();
